@@ -282,10 +282,81 @@ const getAdminStats = async (req, res) => {
   }
 };
 
+// Get all users (NEW)
+const getAllUsers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, name, email, phone, total_donations_count, created_at, is_admin
+       FROM users
+       ORDER BY created_at DESC`
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        users: result.rows
+      }
+    });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching users'
+    });
+  }
+};
+
+// Get user details with donations (NEW)
+const getUserDetails = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get user info
+    const userResult = await pool.query(
+      `SELECT id, name, email, phone, total_donations_count, created_at, is_admin
+       FROM users WHERE id = $1`,
+      [id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Get user's donations
+    const donationsResult = await pool.query(
+      `SELECT d.id, d.status, d.scan_timestamp, b.location_name
+       FROM donations d
+       JOIN bins b ON d.bin_id = b.id
+       WHERE d.user_id = $1
+       ORDER BY d.scan_timestamp DESC`,
+      [id]
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...userResult.rows[0],
+        donations: donationsResult.rows
+      }
+    });
+  } catch (error) {
+    console.error('Get user details error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching user details'
+    });
+  }
+};
+
 module.exports = {
   getPendingDonations,
   getAllDonations,
   approveDonation,
   rejectDonation,
-  getAdminStats
+  getAdminStats,
+  getAllUsers,        // NEW
+  getUserDetails      // NEW
 };
