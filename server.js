@@ -31,6 +31,7 @@ app.use('/api/bins', binsRoutes);
 app.use('/api/vouchers', vouchersRoutes);
 app.use('/api/admin', adminRoutes);
 
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ 

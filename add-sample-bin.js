@@ -21,7 +21,7 @@ const addSampleBins = async () => {
       );
     }
 
-    console.log('✅ 5 sample bins added!');
+    console.log('5 sample bins added!');
     process.exit(0);
 
   } catch (error) {
