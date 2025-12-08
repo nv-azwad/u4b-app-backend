@@ -1,69 +1,73 @@
 const pool = require('../config/database');
 
-// Register a new bin (Admin only - we'll add simple check)
-const registerBin = async (req, res) => {
-  const { binCode, latitude, longitude, locationName } = req.body;
+// Get bin by QR code (the main identifier now)
+const getBinByCode = async (req, res) => {
+  const { binCode } = req.params;
 
   try {
-    // Check if bin code already exists
-    const existingBin = await pool.query(
-      'SELECT * FROM bins WHERE bin_code = $1',
+    // Search by bin_code OR qr_code_id (they're the same)
+    const result = await pool.query(
+      `SELECT 
+        id, 
+        bin_code, 
+        qr_code_id, 
+        site_code, 
+        location_name, 
+        address, 
+        location_code, 
+        latitude, 
+        longitude, 
+        bin_count, 
+        status, 
+        created_at
+       FROM bins 
+       WHERE bin_code = $1 OR qr_code_id = $1`,
       [binCode]
     );
 
-    if (existingBin.rows.length > 0) {
-      return res.status(400).json({
+    if (result.rows.length === 0) {
+      return res.status(404).json({
         success: false,
-        message: 'Bin with this code already exists'
+        message: `Bin with code ${binCode} not found`
       });
     }
 
-    // Create new bin
-    const newBin = await pool.query(
-      'INSERT INTO bins (bin_code, latitude, longitude, location_name, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [binCode, latitude, longitude, locationName, 'active']
-    );
+    const bin = result.rows[0];
 
-    const bin = newBin.rows[0];
-
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: 'Bin registered successfully',
-      data: {
-        id: bin.id,
-        binCode: bin.bin_code,
-        latitude: bin.latitude,
-        longitude: bin.longitude,
-        locationName: bin.location_name,
-        status: bin.status,
-        createdAt: bin.created_at
-      }
+      data: bin
     });
 
   } catch (error) {
-    console.error('Register bin error:', error);
+    console.error('Get bin by code error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while registering bin'
+      message: 'Server error while fetching bin'
     });
   }
 };
 
-// Get all bins (for map view)
+// Get all bins with enhanced data
 const getAllBins = async (req, res) => {
   const { status = 'active', limit = 100, offset = 0 } = req.query;
 
   try {
-    let query = 'SELECT * FROM bins';
+    let query = `
+      SELECT 
+        id, bin_code, qr_code_id, site_code, location_name, 
+        address, location_code, latitude, longitude, 
+        bin_count, status, created_at
+      FROM bins
+    `;
     let params = [];
 
-    // Filter by status if provided
     if (status && status !== 'all') {
       query += ' WHERE status = $1';
       params.push(status);
     }
 
-    query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    query += ` ORDER BY location_name ASC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(limit, offset);
 
     const result = await pool.query(query, params);
@@ -98,74 +102,135 @@ const getAllBins = async (req, res) => {
   }
 };
 
-// Get bin by ID
-const getBinById = async (req, res) => {
-  const { id } = req.params;
+// Get bins near user location - CRITICAL FOR "FIND NEAREST BIN"
+const getBinsNearby = async (req, res) => {
+  const { latitude, longitude, radius = 50 } = req.query;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({
+      success: false,
+      message: 'Latitude and longitude are required'
+    });
+  }
 
   try {
-    const result = await pool.query(
-      'SELECT * FROM bins WHERE id = $1',
-      [id]
-    );
+    // Haversine formula to calculate distance in km
+    const query = `
+      SELECT *,
+        ( 6371 * acos( 
+          cos( radians($1) ) * cos( radians( latitude ) )
+          * cos( radians( longitude ) - radians($2) ) 
+          + sin( radians($1) ) * sin( radians( latitude ) ) 
+        ) ) AS distance
+      FROM bins
+      WHERE status = 'active'
+        AND ( 6371 * acos( 
+          cos( radians($1) ) * cos( radians( latitude ) )
+          * cos( radians( longitude ) - radians($2) ) 
+          + sin( radians($1) ) * sin( radians( latitude ) ) 
+        ) ) < $3
+      ORDER BY distance ASC
+      LIMIT 50
+    `;
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Bin not found'
-      });
-    }
+    const result = await pool.query(query, [
+      parseFloat(latitude), 
+      parseFloat(longitude), 
+      parseFloat(radius)
+    ]);
 
     res.status(200).json({
       success: true,
-      data: result.rows[0]
+      data: {
+        bins: result.rows.map(bin => ({
+          ...bin,
+          distance: parseFloat(bin.distance).toFixed(2) // Round to 2 decimals
+        })),
+        searchLocation: {
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude)
+        },
+        radiusKm: parseFloat(radius),
+        count: result.rows.length
+      }
     });
 
   } catch (error) {
-    console.error('Get bin by ID error:', error);
+    console.error('Get nearby bins error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching bin'
+      message: 'Server error while finding nearby bins'
     });
   }
 };
 
-// Get bin by bin code (used when scanning QR)
-const getBinByCode = async (req, res) => {
-  const { binCode } = req.params;
+// Register a new bin (for future admin panel)
+const registerBin = async (req, res) => {
+  const { 
+    qrCodeId, 
+    siteCode, 
+    locationName, 
+    address, 
+    locationCode, 
+    latitude, 
+    longitude, 
+    binCount 
+  } = req.body;
 
   try {
-    const result = await pool.query(
-      'SELECT * FROM bins WHERE bin_code = $1',
-      [binCode]
+    // Check if bin already exists
+    const existing = await pool.query(
+      'SELECT * FROM bins WHERE qr_code_id = $1 OR bin_code = $1',
+      [qrCodeId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
+    if (existing.rows.length > 0) {
+      return res.status(400).json({
         success: false,
-        message: 'Bin not found'
+        message: 'Bin with this QR code already exists'
       });
     }
 
-    res.status(200).json({
+    // Insert new bin
+    const result = await pool.query(
+      `INSERT INTO bins 
+       (bin_code, qr_code_id, site_code, location_name, address, 
+        location_code, latitude, longitude, bin_count, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active') 
+       RETURNING *`,
+      [
+        qrCodeId,      // bin_code
+        qrCodeId,      // qr_code_id  
+        siteCode,
+        locationName,
+        address,
+        locationCode,
+        latitude,
+        longitude,
+        binCount || 1
+      ]
+    );
+
+    res.status(201).json({
       success: true,
+      message: 'Bin registered successfully',
       data: result.rows[0]
     });
 
   } catch (error) {
-    console.error('Get bin by code error:', error);
+    console.error('Register bin error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching bin'
+      message: 'Server error while registering bin'
     });
   }
 };
 
-// Update bin status (activate/deactivate)
+// Update bin status
 const updateBinStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  // Validate status
   if (!['active', 'inactive', 'maintenance'].includes(status)) {
     return res.status(400).json({
       success: false,
@@ -188,7 +253,7 @@ const updateBinStatus = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Bin status updated successfully',
+      message: 'Bin status updated',
       data: result.rows[0]
     });
 
@@ -196,126 +261,61 @@ const updateBinStatus = async (req, res) => {
     console.error('Update bin status error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while updating bin status'
+      message: 'Server error'
     });
   }
 };
 
-// Get bins near a location (for "Find Nearest Bin" feature)
-const getBinsNearby = async (req, res) => {
-  const { latitude, longitude, radius = 5 } = req.query; // radius in km
-
-  if (!latitude || !longitude) {
-    return res.status(400).json({
-      success: false,
-      message: 'Latitude and longitude are required'
-    });
-  }
-
-  try {
-    // Haversine formula to calculate distance
-    const query = `
-      SELECT *,
-        ( 6371 * acos( cos( radians($1) ) * cos( radians( latitude ) )
-        * cos( radians( longitude ) - radians($2) ) + sin( radians($1) )
-        * sin( radians( latitude ) ) ) ) AS distance
-      FROM bins
-      WHERE status = 'active'
-        AND ( 6371 * acos( cos( radians($1) ) * cos( radians( latitude ) )
-        * cos( radians( longitude ) - radians($2) ) + sin( radians($1) )
-        * sin( radians( latitude ) ) ) ) < $3
-      ORDER BY distance
-      LIMIT 20
-    `;
-
-    const result = await pool.query(query, [latitude, longitude, radius]);
-
-    res.status(200).json({
-      success: true,
-      data: {
-        bins: result.rows,
-        searchLocation: {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude)
-        },
-        radiusKm: parseFloat(radius),
-        count: result.rows.length
-      }
-    });
-
-  } catch (error) {
-    console.error('Get nearby bins error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while finding nearby bins'
-    });
-  }
-};
-
-// Get bin statistics
-const getBinStats = async (req, res) => {
+// Delete bin (for future admin panel)
+const deleteBin = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Get bin info
-    const binResult = await pool.query(
-      'SELECT * FROM bins WHERE id = $1',
+    // Check if bin has donations
+    const donationsCheck = await pool.query(
+      'SELECT COUNT(*) FROM donations WHERE bin_id = $1',
       [id]
     );
 
-    if (binResult.rows.length === 0) {
+    if (parseInt(donationsCheck.rows[0].count) > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete bin with existing donations. Set to inactive instead.'
+      });
+    }
+
+    const result = await pool.query(
+      'DELETE FROM bins WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Bin not found'
       });
     }
 
-    const bin = binResult.rows[0];
-
-    // Get donation statistics for this bin
-    const statsResult = await pool.query(
-      `SELECT 
-        COUNT(*) as total_donations,
-        COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed_donations,
-        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_donations,
-        COUNT(CASE WHEN status = 'rejected' THEN 1 END) as rejected_donations,
-        SUM(points_earned) as total_points_awarded
-       FROM donations
-       WHERE bin_id = $1`,
-      [id]
-    );
-
-    const stats = statsResult.rows[0];
-
     res.status(200).json({
       success: true,
-      data: {
-        bin: bin,
-        statistics: {
-          totalDonations: parseInt(stats.total_donations) || 0,
-          confirmedDonations: parseInt(stats.confirmed_donations) || 0,
-          pendingDonations: parseInt(stats.pending_donations) || 0,
-          rejectedDonations: parseInt(stats.rejected_donations) || 0,
-          totalPointsAwarded: parseInt(stats.total_points_awarded) || 0
-        }
-      }
+      message: 'Bin deleted successfully',
+      data: result.rows[0]
     });
 
   } catch (error) {
-    console.error('Get bin stats error:', error);
+    console.error('Delete bin error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching bin statistics'
+      message: 'Server error'
     });
   }
 };
 
 module.exports = {
-  registerBin,
   getAllBins,
-  getBinById,
   getBinByCode,
-  updateBinStatus,
   getBinsNearby,
-  getBinStats
+  registerBin,
+  updateBinStatus,
+  deleteBin
 };

@@ -3,11 +3,10 @@ const router = express.Router();
 const {
   registerBin,
   getAllBins,
-  getBinById,
   getBinByCode,
   updateBinStatus,
   getBinsNearby,
-  getBinStats
+  deleteBin
 } = require('../controllers/binsController');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -15,11 +14,10 @@ const { authenticateToken } = require('../middleware/auth');
 router.get('/', getAllBins);
 router.get('/nearby', getBinsNearby);
 router.get('/code/:binCode', getBinByCode);
-router.get('/:id', getBinById);
-router.get('/:id/stats', getBinStats);
 
-// Protected routes (authentication required - for admin/users)
+// Protected routes (authentication required)
 router.post('/register', authenticateToken, registerBin);
 router.patch('/:id/status', authenticateToken, updateBinStatus);
+router.delete('/:id', authenticateToken, deleteBin);
 
-module.exports = router; 
+module.exports = router;
