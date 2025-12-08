@@ -258,6 +258,12 @@ const getAdminStats = async (req, res) => {
     
     // Total users
     const usersResult = await pool.query('SELECT COUNT(*) FROM users');
+
+    // Active users (users who have made at least 1 donation)
+const activeUsersResult = await pool.query(
+  `SELECT COUNT(DISTINCT user_id) FROM donations 
+   WHERE status IN ('approved', 'pending_admin')`
+);
     
     // Total vouchers claimed
     const vouchersResult = await pool.query('SELECT COUNT(*) FROM claimed_vouchers');
@@ -269,7 +275,8 @@ const getAdminStats = async (req, res) => {
         pendingReview: parseInt(pendingResult.rows[0].count),
         approvedToday: parseInt(approvedTodayResult.rows[0].count),
         totalUsers: parseInt(usersResult.rows[0].count),
-        totalVouchers: parseInt(vouchersResult.rows[0].count)
+        totalVouchers: parseInt(vouchersResult.rows[0].count),
+        activeUsers: parseInt(activeUsersResult.rows[0].count)
       }
     });
 
@@ -357,6 +364,6 @@ module.exports = {
   approveDonation,
   rejectDonation,
   getAdminStats,
-  getAllUsers,        // NEW
-  getUserDetails      // NEW
+  getAllUsers,        
+  getUserDetails      
 };
