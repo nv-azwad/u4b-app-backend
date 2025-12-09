@@ -271,6 +271,226 @@ const realBins = [
     binCount: 1,
     longitude: 101.258401,
     latitude: 3.330685
+  },
+  {
+    qrCodeId: 'A0468019',
+    siteCode: 'FR3027M',
+    locationName: 'Jalan Merbok',
+    address: 'Kampung Bukit Kuching, Jeram, Selangor',
+    locationCode: 'L1871',
+    binCount: 1,
+    longitude: 101.334000,
+    latitude: 3.271300
+  },
+  {
+    qrCodeId: 'A2B94C89',
+    siteCode: 'FR3028M',
+    locationName: 'Depan Surau - Jalan Merbau',
+    address: '45800 Jeram, Selangor',
+    locationCode: 'L1872',
+    binCount: 1,
+    longitude: 101.358000,
+    latitude: 3.272400
+  },
+  {
+    qrCodeId: 'ED500E4D',
+    siteCode: 'FR3029M',
+    locationName: 'Roadside',
+    address: 'Kampung Parit Mahang, 45800 Jeram, Selangor',
+    locationCode: 'L1954',
+    binCount: 1,
+    longitude: 101.374600,
+    latitude: 3.279800
+  },
+  {
+    qrCodeId: 'E3F64726',
+    siteCode: 'FR3030M',
+    locationName: 'Masjid Nurul Iman',
+    address: 'Laluan 54, Kampung Ijok, 45700 Batang Berjuntai, Selangor',
+    locationCode: 'L1973',
+    binCount: 1,
+    longitude: 101.401700,
+    latitude: 3.312600
+  },
+  {
+    qrCodeId: 'E826B838',
+    siteCode: 'FR0880M',
+    locationName: 'Masjid Al-Barokah',
+    address: 'Kampung Assam Jawa, 45700 Kuala Selangor',
+    locationCode: 'L0654',
+    binCount: 1,
+    longitude: 101.290078,
+    latitude: 3.297800
+  },
+  {
+    qrCodeId: '905F575E',
+    siteCode: 'FR0876M',
+    locationName: 'Masjid Jamiur Ridhuan',
+    address: 'Jalan Kapar, 46500 Jeram',
+    locationCode: 'L0640',
+    binCount: 1,
+    longitude: 101.314379,
+    latitude: 3.223968
+  },
+  {
+    qrCodeId: 'E74C222F',
+    siteCode: 'FR1575M',
+    locationName: 'Road side nearby car park',
+    address: 'Taman Budi, Jeram, Selangor',
+    locationCode: 'L1158',
+    binCount: 1,
+    longitude: 101.314379,
+    latitude: 3.225257
+  },
+  {
+    qrCodeId: '5142AB3D',
+    siteCode: 'TT0028',
+    locationName: 'Lotus Puncak Alam',
+    address: 'Tesco Puncak Alam',
+    locationCode: '1131',
+    binCount: 1,
+    longitude: 101.427535,
+    latitude: 3.235947
+  },
+  {
+    qrCodeId: '9B39B0FF',
+    siteCode: 'FR2963M',
+    locationName: 'Lorong Naluri Sukma 8/1',
+    address: 'Bandar Puncak Alam, Kuala Selangor',
+    locationCode: 'L1854',
+    binCount: 1,
+    longitude: 101.425641,
+    latitude: 3.227031
+  },
+  {
+    qrCodeId: 'DBC093DC',
+    siteCode: 'FR2965M',
+    locationName: 'Jalan Alam Suria',
+    address: '32, Jln Alam Suria 15/3/3, Bandar Puncak Alam, 42300 Bandar Puncak Alam, Selangor',
+    locationCode: 'L1852',
+    binCount: 1,
+    longitude: 101.415800,
+    latitude: 3.235500
+  },
+  {
+    qrCodeId: '0D7A9349',
+    siteCode: 'FR2966M',
+    locationName: 'Lorong Az-Zaharah',
+    address: 'Bandar Puncak Alam, 54010 Kuala Selangor',
+    locationCode: 'L1853',
+    binCount: 1,
+    longitude: 101.419188,
+    latitude: 3.229076
+  },
+  {
+    qrCodeId: '5A6A27EF',
+    siteCode: 'FR0917M',
+    locationName: 'Road Side',
+    address: 'Jalan Samudera 9/1, Bandar Puncak Alam, 45010 Kuala Selangor, Selangor',
+    locationCode: '1008',
+    binCount: 1,
+    longitude: 101.424417,
+    latitude: 3.232600
+  },
+  {
+    qrCodeId: '547ECDD8',
+    siteCode: 'FR0922M',
+    locationName: 'Bus Stop',
+    address: 'Jalan Mahkota Impian 2/2, Bandar Puncak Alam',
+    locationCode: 'H030',
+    binCount: 1,
+    longitude: 101.435990,
+    latitude: 3.218112
+  },
+  {
+    qrCodeId: 'E8B913F2',
+    siteCode: 'E8B913F2',
+    locationName: 'UiTM Cawangan Selangor, Kampus Puncak Alam',
+    address: 'UiTM Cawangan Selangor Kampus Puncak Alam Bandar Puncak Alam. 42300 Puncak Alam',
+    locationCode: '',
+    binCount: 1,
+    longitude: 101.427535,
+    latitude: 3.235947
+  },
+  {
+    qrCodeId: '8D6FF806',
+    siteCode: 'FR3486M',
+    locationName: 'Taman Malawati Jaya',
+    address: '1, Jalan Meranti 2, Taman Malawati Jaya, 45000 Kuala Selangor, Selangor',
+    locationCode: 'L2409',
+    binCount: 1,
+    longitude: 101.272424,
+    latitude: 3.312920
+  },
+  {
+    qrCodeId: '0E3A7062',
+    siteCode: 'FR3487M',
+    locationName: 'Taman Bayu Alam',
+    address: 'Jalan Alam 2, Taman Bayu Alam, 45000 Kuala Selangor, Selangor',
+    locationCode: 'L2408',
+    binCount: 1,
+    longitude: 101.255700,
+    latitude: 3.321417
+  },
+  {
+    qrCodeId: 'ACA7A129',
+    siteCode: 'FR3488M',
+    locationName: 'Taman Malawati',
+    address: '777, Jalan Klinik, Taman Malawati, 45000 Kuala Selangor, Selangor',
+    locationCode: 'L2410',
+    binCount: 1,
+    longitude: 101.249888,
+    latitude: 3.337330
+  },
+  {
+    qrCodeId: '4A8FB381',
+    siteCode: 'FR3489M',
+    locationName: 'Taman Kuala Selangor Utama',
+    address: 'Jalan KSU 3/1, Taman Kuala Selangor Utama, 45000 Kuala Selangor, Selangor',
+    locationCode: 'L2404',
+    binCount: 1,
+    longitude: 101.269379,
+    latitude: 3.335380
+  },
+  {
+    qrCodeId: '0AF290CE',
+    siteCode: 'FR3490M',
+    locationName: 'Taman Kuala Selangor Utama',
+    address: 'Jalan KSU 2/1, Taman Kuala Selangor Utama, 45000 Kuala Selangor, Selangor',
+    locationCode: 'L2403',
+    binCount: 1,
+    longitude: 101.272017,
+    latitude: 3.335033
+  },
+  {
+    qrCodeId: '4A060DA9',
+    siteCode: 'FR3491M',
+    locationName: 'Pasir Penambang',
+    address: 'Petronas, Pasir Penambang, 45000 Kuala Selangor, Selangor',
+    locationCode: 'L2402',
+    binCount: 1,
+    longitude: 101.254813,
+    latitude: 3.349186
+  },
+  {
+    qrCodeId: 'F0CB56A3',
+    siteCode: 'FR3492M',
+    locationName: 'Taman Kuala Selangor Jaya',
+    address: 'Jalan Ksj 6, Taman Kuala Selangor Jaya, 45000 Kuala Selangor',
+    locationCode: 'L2401',
+    binCount: 1,
+    longitude: 101.266694,
+    latitude: 3.330002
+  },
+  {
+    qrCodeId: '610C2E12',
+    siteCode: 'FR2007M',
+    locationName: 'Taman Permainan',
+    address: 'Jalan Menanti, Sungai Tengi Kiri, Pekan Tanjong Karang, 45500 Tanjong Karang, Selangor',
+    locationCode: 'L1434',
+    binCount: 1,
+    longitude: 101.173430,
+    latitude: 3.426080
   }
 ];
 
