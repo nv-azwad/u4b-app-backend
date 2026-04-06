@@ -1,0 +1,3 @@
+# Auto detect text files and perform LF normalization 
+#(ensure that there aren't issues for crossplatform edits between windows and mac)
+* text=auto

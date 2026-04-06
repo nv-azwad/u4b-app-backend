@@ -1,0 +1,16 @@
+#all the folders to ignore when pushing to github
+# Dependencies
+node_modules/
+
+# Secrets
+.env
+service-account-key.json
+
+# Mac Junk
+.DS_Store
+**/.DS_Store
+
+# Logs (Fixed typo)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
