@@ -170,4 +170,4 @@ See [`.env.example`](.env.example) for all required variables.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+All rights reserved. This source code is made publicly available for portfolio and demonstration purposes only. See [LICENSE](LICENSE) for details.
